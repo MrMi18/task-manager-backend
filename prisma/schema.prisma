@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique
+  projects Project[] // a user can own many projects
+  tasks    Task[]    // a user can be assigned many tasks
+}
+
+model Project {
+  id       Int      @id @default(autoincrement())
+  name     String
+  owner    User     @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  tasks    Task[]
+}
+
+model Task {
+  id         Int      @id @default(autoincrement())
+  title      String
+  status     TaskStatus @default(PENDING)
+  project    Project   @relation(fields: [projectId], references: [id])
+  projectId  Int
+  assignee   User?     @relation(fields: [assigneeId], references: [id])
+  assigneeId Int?
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
